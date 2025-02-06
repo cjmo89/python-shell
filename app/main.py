@@ -32,7 +32,7 @@ def main():
 
 
 def type(arg):
-    builtins = ["echo", "exit", "type"]
+    builtins = ["echo", "exit", "type", "pwd"]
     if arg in builtins:
         return f"{arg} is a shell builtin"
     result, path = inPath(arg)
