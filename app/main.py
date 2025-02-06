@@ -24,7 +24,10 @@ def main():
             case "cd":
                 home = os.path.expanduser("~")
                 if len(strings) > 1:
-                    os.chdir(strings[1])
+                    try:
+                        os.chdir(strings[1])
+                    except FileNotFoundError:
+                        print(f"cd: {strings[1]}: No such file or directory")
                 else:
                     os.chdir(home)
             case _:
