@@ -30,8 +30,11 @@ def type(arg):
         return f"{arg} is a shell builtin"
     else:
         for path in paths:
-            if arg in os.listdir(path):
-                return f"{arg} is {path}/" + arg
+            try:
+                if arg in os.listdir(path):
+                    return f"{arg} is {path}/" + arg
+            except FileNotFoundError:
+                pass
         return f"{arg}: not found"
 
 
