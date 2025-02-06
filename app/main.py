@@ -26,10 +26,11 @@ def main():
                 if len(strings) > 1:
                     if strings[1] == "~":
                         os.chdir(home)
-                    try:
-                        os.chdir(strings[1])
-                    except FileNotFoundError:
-                        print(f"cd: {strings[1]}: No such file or directory")
+                    else:
+                        try:
+                            os.chdir(strings[1])
+                        except FileNotFoundError:
+                            print(f"cd: {strings[1]}: No such file or directory")
                 else:
                     os.chdir(home)
             case _:
