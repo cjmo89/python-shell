@@ -19,6 +19,8 @@ def main():
                 print(inString[5:])
             case "type":
                 print(type(strings[1]))
+            case "pwd":
+                print(os.getcwd())
             case _:
                 result, path = inPath(command)
                 if result:
