@@ -22,7 +22,7 @@ def main():
 
 
 def type(arg):
-    builtins = ["echo", "exit"]
+    builtins = ["echo", "exit", "type"]
     if arg in builtins:
         return f"{arg} is a shell builtin"
     else:
