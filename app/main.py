@@ -1,4 +1,5 @@
 import sys
+import os
 
 
 def main():
@@ -23,9 +24,14 @@ def main():
 
 def type(arg):
     builtins = ["echo", "exit", "type"]
+    pathVar = os.getenv("PATH")
+    paths = pathVar.split(":")
     if arg in builtins:
         return f"{arg} is a shell builtin"
     else:
+        for path in paths:
+            if arg in os.listdir(path):
+                return f"{arg} is {path}/" + arg
         return f"{arg}: not found"
 
 
