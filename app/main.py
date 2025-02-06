@@ -21,6 +21,12 @@ def main():
                 print(type(strings[1]))
             case "pwd":
                 print(os.getcwd())
+            case "cd":
+                home = os.path.expanduser("~")
+                if len(strings) > 1:
+                    os.chdir(strings[1])
+                else:
+                    os.chdir(home)
             case _:
                 result, path = inPath(command)
                 if result:
@@ -32,7 +38,7 @@ def main():
 
 
 def type(arg):
-    builtins = ["echo", "exit", "type", "pwd"]
+    builtins = ["echo", "exit", "type", "pwd", "cd"]
     if arg in builtins:
         return f"{arg} is a shell builtin"
     result, path = inPath(arg)
