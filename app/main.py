@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 
 
 def main():
@@ -19,23 +20,35 @@ def main():
             case "type":
                 print(type(strings[1]))
             case _:
-                print(f"{command}: command not found")
+                result, path = inPath(command)
+                if result:
+                    subOutput = subprocess.run(strings)
+                    if subOutput.stdout:
+                        print(subOutput.stdout)
+                else:
+                    print(f"{command}: command not found")
 
 
 def type(arg):
     builtins = ["echo", "exit", "type"]
-    pathVar = os.getenv("PATH")
-    paths = pathVar.split(":")
     if arg in builtins:
         return f"{arg} is a shell builtin"
-    else:
-        for path in paths:
-            try:
-                if arg in os.listdir(path):
-                    return f"{arg} is {path}/" + arg
-            except FileNotFoundError:
-                pass
-        return f"{arg}: not found"
+    result, path = inPath(arg)
+    if result:
+        return f"{arg} is {path}/" + arg
+    return f"{arg}: not found"
+
+
+def inPath(arg):
+    pathVar = os.getenv("PATH")
+    paths = pathVar.split(":")
+    for path in paths:
+        try:
+            if arg in os.listdir(path):
+                return True, path
+        except FileNotFoundError:
+            pass
+    return False, None
 
 
 if __name__ == "__main__":
