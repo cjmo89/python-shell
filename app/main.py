@@ -3,7 +3,6 @@ import os
 
 
 def main():
-    print(sys.argv)
     while True:
         sys.stdout.write("$ ")
         # Wait for user input
