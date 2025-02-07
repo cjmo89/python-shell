@@ -68,11 +68,14 @@ def type(args):
 def parseInput(inString: str) -> list[str]:
     """Returns the commands and parameters in the given prompt string
     as a list of strings"""
-    if not app.utils.findQoutes(inString):
+    quotesIndices = app.utils.findQoutes(inString)
+    if not quotesIndices:
         return inString.split()
-    startQuote, endQuote = app.utils.findQoutes(inString)
-    commands = inString[:startQuote].split()
-    commands.append(inString[startQuote + 1 : endQuote])  # Append the quoted string
+    commands = inString[: quotesIndices[0]].split()
+    for i in range(0, len(quotesIndices), 2):
+        # Append each quoted phrase, starting at the beginning of the word,
+        # +1 so the starting quote itself isn't appended
+        commands.append(inString[quotesIndices[i] + 1 : quotesIndices[i + 1]])
     return commands
 
 

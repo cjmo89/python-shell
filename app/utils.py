@@ -17,10 +17,8 @@ def inPath(arg: str) -> tuple[bool, str]:
     return False, None
 
 
-def findQoutes(s: str) -> tuple[int]:
-    """Returns a Tuple containing the indices of the first and last single quote '
-    in the given string"""
+def findQoutes(s: str) -> list[int]:
+    """Returns a list containing the indices of any single quotes
+    in the given string, if the number of quotes is odd, return None"""
     indices = [i for i, char in enumerate(s) if char == "'"]
-    if len(indices) < 2:
-        return None
-    return (indices[0], indices[-1])
+    return indices if len(indices) % 2 == 0 else None
