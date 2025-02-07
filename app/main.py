@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 
-import utils
+import app.utils
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
 
@@ -46,7 +46,7 @@ def main():
                 else:
                     os.chdir(home)
             case _:
-                isInPath, path = utils.inPath(command)
+                isInPath, path = app.utils.inPath(command)
                 if isInPath:
                     subOutput = subprocess.run(inputList)
                     if subOutput.stdout:
@@ -59,7 +59,7 @@ def type(args):
     for arg in args:
         if arg in builtins:
             print(f"{arg} is a shell builtin")
-        result, path = utils.inPath(arg)
+        result, path = app.utils.inPath(arg)
         if result:
             print(f"{arg} is {path}/" + arg)
         print(f"{arg}: not found")
@@ -68,9 +68,9 @@ def type(args):
 def parseInput(inString: str) -> list[str]:
     """Returns the commands and parameters in the given prompt string
     as a list of strings"""
-    if not utils.findQoutes(inString):
+    if not app.utils.findQoutes(inString):
         return inString.split()
-    startQuote, endQuote = utils.findQoutes(inString)
+    startQuote, endQuote = app.utils.findQoutes(inString)
     commands = inString[:startQuote].split()
     commands.append(inString[startQuote + 1 : endQuote])  # Append the quoted string
     return commands
