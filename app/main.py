@@ -2,67 +2,78 @@ import sys
 import os
 import subprocess
 
+import utils
+
+builtins = ["echo", "exit", "type", "pwd", "cd"]
+
 
 def main():
     while True:
         sys.stdout.write("$ ")
         # Wait for user input
         inString = input()
-        strings = inString.split()
-        command = strings[0]
+        inputList = parseInput(inString)
+        command = inputList[0]
         match command:
             case "exit":
-                if len(strings) > 1:
-                    sys.exit(int(strings[1]))  # exit returning the first arg
+                if len(inputList) > 1:
+                    sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                print(inString[5:])
+                out = ""
+                if len(inputList) > 1:
+                    for i, s in enumerate(inputList[1:]):
+                        # -2 because we start from the second item
+                        if i == len(inputList) - 2:
+                            out += s
+                        else:
+                            out += s + " "
+                print(out)
             case "type":
-                print(type(strings[1]))
+                type(inputList[1:])
             case "pwd":
                 print(os.getcwd())
             case "cd":
                 home = os.path.expanduser("~")
-                if len(strings) > 1:
-                    if strings[1] == "~":
+                if len(inputList) > 1:
+                    if inputList[1] == "~":
                         os.chdir(home)
                     else:
                         try:
-                            os.chdir(strings[1])
+                            os.chdir(inputList[1])
                         except FileNotFoundError:
-                            print(f"cd: {strings[1]}: No such file or directory")
+                            print(f"cd: {inputList[1]}: No such file or directory")
                 else:
                     os.chdir(home)
             case _:
-                result, path = inPath(command)
-                if result:
-                    subOutput = subprocess.run(strings)
+                isInPath, path = utils.inPath(command)
+                if isInPath:
+                    subOutput = subprocess.run(inputList)
                     if subOutput.stdout:
                         print(subOutput.stdout)
                 else:
                     print(f"{command}: command not found")
 
 
-def type(arg):
-    builtins = ["echo", "exit", "type", "pwd", "cd"]
-    if arg in builtins:
-        return f"{arg} is a shell builtin"
-    result, path = inPath(arg)
-    if result:
-        return f"{arg} is {path}/" + arg
-    return f"{arg}: not found"
+def type(args):
+    for arg in args:
+        if arg in builtins:
+            print(f"{arg} is a shell builtin")
+        result, path = utils.inPath(arg)
+        if result:
+            print(f"{arg} is {path}/" + arg)
+        print(f"{arg}: not found")
 
 
-def inPath(arg):
-    pathVar = os.getenv("PATH")
-    paths = pathVar.split(":")
-    for path in paths:
-        try:
-            if arg in os.listdir(path):
-                return True, path
-        except FileNotFoundError:
-            pass
-    return False, None
+def parseInput(inString: str) -> list[str]:
+    """Returns the commands and parameters in the given prompt string
+    as a list of strings"""
+    if not utils.findQoutes(inString):
+        return inString.split()
+    startQuote, endQuote = utils.findQoutes(inString)
+    commands = inString[:startQuote].split()
+    commands.append(inString[startQuote + 1 : endQuote])  # Append the quoted string
+    return commands
 
 
 if __name__ == "__main__":
