@@ -24,15 +24,7 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                out = ""
-                if len(inputList) > 1:
-                    for i, s in enumerate(inputList[1:]):
-                        # -2 because we start from the second item
-                        if i == len(inputList) - 2:
-                            out += s
-                        else:
-                            out += s + " "
-                print(out)
+                print(echo(inputList))
             case "type":
                 type(inputList[1:])
             case "pwd":
@@ -69,6 +61,18 @@ def type(args):
             print(f"{arg} is {path}/" + arg)
             continue
         print(f"{arg}: not found")
+
+
+def echo(inputList: list[str]) -> str:
+    out = ""
+    if len(inputList) > 1:
+        for i, s in enumerate(inputList[1:]):
+            # -2 because we start from the second item
+            if i == len(inputList) - 2:
+                out += s
+            else:
+                out += s + " "
+    return out
 
 
 def parseInput(inString: str) -> list[str]:
