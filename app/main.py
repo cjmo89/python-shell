@@ -81,9 +81,31 @@ def parseInput(inString: str) -> list[str]:
     totalQoutes = inString.count("'")
     if totalQoutes == 0 or totalQoutes % 2 == 1:
         return inString.split()  # Treat uneven quotes as normal characters
-    command = inString.split()[0]
-    argString = inString[len(command) + 2 :].replace("'", "")
-    return [command, argString]
+    parseList = []
+    indices = app.utils.findQoutes(inString)
+
+    # First parse anything that might appear before the quotes
+    if indices[0] > 0:
+        parseList = inString[
+            : indices[0]
+        ].split()  # Add everything that isn't quoted to the parseList
+
+    # Next add the quoted strings
+    for i in range(0, len(indices), 2):
+        # i is the opening quote i + 1 is the closing one
+        if (
+            i > 0 and inString[indices[i] - 1] == "'"
+        ):  # If the previous character was a quote, we're dealing with continuous quotes
+            parseList[len(parseList) - 1] += inString[
+                indices[i] + 1 : indices[i + 1]
+            ]  # In this case, concatenate the next string onto the previous one
+        else:  # Add a new string to the list as usual
+            parseList.append(inString[indices[i] + 1 : indices[i + 1]])
+
+    # Finally, add anything that comes after the quotes
+    if len(inString) > indices[-1] + 1:
+        parseList += inString[indices[-1] + 1 :].split()
+    return parseList
 
 
 if __name__ == "__main__":

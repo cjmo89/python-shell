@@ -19,6 +19,5 @@ def inPath(arg: str) -> tuple[bool, str]:
 
 def findQoutes(s: str) -> list[int]:
     """Returns a list containing the indices of any single quotes
-    in the given string, if the number of quotes is odd, return None"""
-    indices = [i for i, char in enumerate(s) if char == "'"]
-    return indices if len(indices) % 2 == 0 else None
+    in the given string"""
+    return [i for i, char in enumerate(s) if char == "'"]

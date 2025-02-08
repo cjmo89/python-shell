@@ -26,6 +26,11 @@ def test_quotes():
     assert "this is great" == echo(input)
 
 
+def test_empty_quotes():
+    input = parseInput("echo ''")
+    assert "" == echo(input)
+
+
 def test_continuous_quotes():
     input = parseInput("echo 'test     world' 'shell''hello'")
     assert "test     world shellhello" == echo(input)
