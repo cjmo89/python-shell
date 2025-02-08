@@ -66,17 +66,17 @@ def type(args):
 
 
 def parseInput(inString: str) -> list[str]:
-    """Returns the commands and parameters in the given prompt string
+    """Returns the command and parameters in the given prompt string
     as a list of strings"""
-    quotesIndices = app.utils.findQoutes(inString)
-    if not quotesIndices:
-        return inString.split()
-    commands = inString[: quotesIndices[0]].split()
-    for i in range(0, len(quotesIndices), 2):
-        # Append each quoted phrase, starting at the beginning of the word,
-        # +1 so the starting quote itself isn't appended
-        commands.append(inString[quotesIndices[i] + 1 : quotesIndices[i + 1]])
-    return commands
+    totalQoutes = inString.count("'")
+    if totalQoutes == 0 or totalQoutes % 2 == 1:
+        return inString.split()  # Treat uneven quotes as normal characters
+    command = inString.split()[0]
+    argString = inString[len(command) + 2 :].replace("'", "")
+    # argString = ""
+    # for arg in inString.split()[1:]:
+    #     argString += arg
+    return [command, argString]
 
 
 if __name__ == "__main__":
