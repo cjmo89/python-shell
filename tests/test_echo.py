@@ -34,3 +34,8 @@ def test_empty_quotes():
 def test_continuous_quotes():
     input = parseInput("echo 'test     world' 'shell''hello'")
     assert "test     world shellhello" == echo(input)
+
+
+def test_double_quotes():
+    input = parseInput('echo "quz  hello"  "bar"')
+    assert "quz  hello bar" == echo(input)
