@@ -11,7 +11,11 @@ def main():
     while True:
         sys.stdout.write("$ ")
         # Wait for user input
-        inString = input()
+        try:
+            inString = input()
+        except EOFError:
+            print("")
+            break
         inputList = parseInput(inString)
         command = inputList[0]
         match command:
@@ -59,9 +63,11 @@ def type(args):
     for arg in args:
         if arg in builtins:
             print(f"{arg} is a shell builtin")
+            continue
         result, path = app.utils.inPath(arg)
         if result:
             print(f"{arg} is {path}/" + arg)
+            continue
         print(f"{arg}: not found")
 
 
@@ -73,9 +79,6 @@ def parseInput(inString: str) -> list[str]:
         return inString.split()  # Treat uneven quotes as normal characters
     command = inString.split()[0]
     argString = inString[len(command) + 2 :].replace("'", "")
-    # argString = ""
-    # for arg in inString.split()[1:]:
-    #     argString += arg
     return [command, argString]
 
 
