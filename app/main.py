@@ -24,6 +24,7 @@ def main():
             continue
         if len(inputList) == 0:
             continue
+        file = "stdout"
         if ">" in inputList:
             file = rearrange(inputList)
             if not file:
@@ -35,11 +36,15 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList)
+                echo(inputList, file)
             case "type":
-                type(inputList[1:])
+                type(inputList[1:], file)
             case "pwd":
-                print(os.getcwd())
+                if file == "stdout":
+                    print(os.getcwd)
+                else:
+                    with open(file, "w") as f:
+                        f.write(os.getcwd)
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
@@ -57,7 +62,11 @@ def main():
                 if isInPath:
                     subOutput = subprocess.run(inputList)
                     if subOutput.stdout:
-                        print(subOutput.stdout)
+                        if file == "stdout":
+                            print(subOutput.stdout)
+                        else:
+                            with open(file, "w") as f:
+                                f.write(subOutput.stdout)
                 else:
                     print(f"{command}: command not found")
 
