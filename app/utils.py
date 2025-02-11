@@ -32,21 +32,21 @@ def parseQuotes(inString: str, quoteType: str) -> list[str]:
         # Next add the quoted strings
         quoteStack = QuoteStack()
         for i in range(0, len(indices)):
-            # i is the index of the opening quote, i + 1 is the index of the closing one
-            if i > 0 and inString[indices[i] - 1] == quoteType:
-                # If the previous character was a quote, we're dealing with continuous quotes
-                parseList[len(parseList) - 1] += inString[
-                    indices[i] + 1 : indices[i + 1]
-                ]  # In this case, concatenate the next string onto the previous one
+            if not quoteStack.isEmpty():  # If it's a closing quote
                 quoteStack.pop()
-            else:  # Add a new string to the list as usual
-                if not quoteStack.isEmpty():  # If it's a closing quote
-                    quoteStack.pop()
-                    if i + 1 < len(indices):
-                        parseList += inString[indices[i] + 1 : indices[i + 1]].split()
-                else:
-                    quoteStack.push(quoteType)
+                if i + 1 < len(indices):
+                    parseList += inString[indices[i] + 1 : indices[i + 1]].split()
+            else:
+                quoteStack.push(quoteType)
+                if indices[i] > 0 and inString[indices[i] - 1] == " ":
+                    # If the last character was space, append a new arg
                     parseList.append(inString[indices[i] + 1 : indices[i + 1]])
+                else:
+                    if len(parseList) == 0:
+                        # The command itself is quoted so there's nothing in the parseList yet
+                        parseList.append(inString[indices[i] + 1 : indices[i + 1]])
+                    else:  # Else append to the previous one
+                        parseList[-1] += inString[indices[i] + 1 : indices[i + 1]]
 
         # Finally, add anything that comes after the quotes
         if len(inString) > indices[-1] + 1:
