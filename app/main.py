@@ -2,7 +2,8 @@ import sys
 import os
 import subprocess
 
-import app.utils
+from app.utils import parseQuotes
+from app.utils import inPath
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
 
@@ -42,7 +43,7 @@ def main():
                 else:
                     os.chdir(home)
             case _:
-                isInPath, path = app.utils.inPath(command)
+                isInPath, path = inPath(command)
                 if isInPath:
                     subOutput = subprocess.run(inputList)
                     if subOutput.stdout:
@@ -56,7 +57,7 @@ def type(args):
         if arg in builtins:
             print(f"{arg} is a shell builtin")
             continue
-        result, path = app.utils.inPath(arg)
+        result, path = inPath(arg)
         if result:
             print(f"{arg} is {path}/" + arg)
             continue
@@ -79,33 +80,23 @@ def parseInput(inString: str) -> list[str]:
     """Returns the command and parameters in the given prompt string
     as a list of strings"""
     totalQoutes = inString.count("'")
-    if totalQoutes == 0 or totalQoutes % 2 == 1:
-        return inString.split()  # Treat uneven quotes as normal characters
-    parseList = []
-    indices = app.utils.findQoutes(inString)
+    totalDquotes = inString.count('"')
+    if totalQoutes == 0 and totalDquotes == 0:
+        return inString.split()  # There are no quotes so just split on whitspace
 
-    # First parse anything that might appear before the quotes
-    if indices[0] > 0:
-        parseList = inString[
-            : indices[0]
-        ].split()  # Add everything that isn't quoted to the parseList
-
-    # Next add the quoted strings
-    for i in range(0, len(indices), 2):
-        # i is the opening quote i + 1 is the closing one
-        if (
-            i > 0 and inString[indices[i] - 1] == "'"
-        ):  # If the previous character was a quote, we're dealing with continuous quotes
-            parseList[len(parseList) - 1] += inString[
-                indices[i] + 1 : indices[i + 1]
-            ]  # In this case, concatenate the next string onto the previous one
-        else:  # Add a new string to the list as usual
-            parseList.append(inString[indices[i] + 1 : indices[i + 1]])
-
-    # Finally, add anything that comes after the quotes
-    if len(inString) > indices[-1] + 1:
-        parseList += inString[indices[-1] + 1 :].split()
-    return parseList
+    if totalQoutes > 0 and totalDquotes == 0:
+        return parseQuotes(inString, "'")  # There are only single quotes
+    elif totalQoutes == 0 and totalDquotes > 0:
+        return parseQuotes(inString, '"')  # There are only double quotes
+    else:  # We have mixed single and double quotes
+        if totalQoutes % 2 == 1:  # There's an odd number of single quotes
+            # Treat them as normal characters and only consider the double quotes
+            return parseQuotes(inString, '"')
+        elif totalDquotes % 2 == 1:  # There's an odd number of double quotes
+            # Treat them as normal characters and only consider the single quotes
+            return parseQuotes(inString, "'")
+        else:  # There is an even number of both quotes
+            return parseQuotes(inString, "mixed")
 
 
 if __name__ == "__main__":

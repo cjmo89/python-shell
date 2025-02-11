@@ -39,3 +39,13 @@ def test_continuous_quotes():
 def test_double_quotes():
     input = parseInput('echo "quz  hello"  "bar"')
     assert "quz  hello bar" == echo(input)
+
+
+def test_mixed_quotes_two():
+    input = parseInput("echo \"not 'great' is it?\"")
+    assert "not 'great' is it?" == echo(input)
+
+
+def test_unquoted_intermediates():
+    input = parseInput("echo 'aa' bb 'cc'")
+    assert "aa bb cc" == echo(input)
