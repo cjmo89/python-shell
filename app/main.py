@@ -3,7 +3,7 @@ import os
 import subprocess
 import shlex
 
-from app.utils import inPath
+from app.utils import inPath, printToFile
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
 
@@ -40,11 +40,7 @@ def main():
             case "type":
                 type(inputList[1:], file)
             case "pwd":
-                if file == "stdout":
-                    print(os.getcwd)
-                else:
-                    with open(file, "w") as f:
-                        f.write(os.getcwd)
+                printToFile(os.getcwd())
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
@@ -62,13 +58,9 @@ def main():
                 if isInPath:
                     subOutput = subprocess.run(inputList)
                     if subOutput.stdout:
-                        if file == "stdout":
-                            print(subOutput.stdout)
-                        else:
-                            with open(file, "w") as f:
-                                f.write(subOutput.stdout)
+                        printToFile(file, subOutput.stdout)
                 else:
-                    print(f"{command}: command not found")
+                    printToFile(file, f"{command}: command not found")
 
 
 def type(inputList, out="stdout"):
@@ -82,11 +74,7 @@ def type(inputList, out="stdout"):
             s += f"{arg} is {path}/" + arg
             continue
         s += f"{arg}: not found"
-    if out == "stdout":
-        print(s)
-    else:
-        with open(out, "w") as f:
-            f.write(s + "\n")
+    printToFile(s)
 
 
 def echo(inputList: list[str], out: str = "stdout") -> None:
@@ -98,11 +86,7 @@ def echo(inputList: list[str], out: str = "stdout") -> None:
                 sOut += s
             else:
                 sOut += s + " "
-    if out == "stdout":
-        print(sOut)
-    else:
-        with open(out, "w") as f:
-            f.write(sOut + "\n")
+    printToFile(out, sOut)
 
 
 def rearrange(inputList: list[str]) -> str:
@@ -116,8 +100,9 @@ def rearrange(inputList: list[str]) -> str:
         return None
     i = inputList.index(">")
     file = inputList[i + 1]
-    inputList.remove(">")
-    inputList.remove(file)
+    if inputList[0] in builtins:
+        inputList.remove(">")
+        inputList.remove(file)
     return file
 
 

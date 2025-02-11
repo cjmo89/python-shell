@@ -15,3 +15,11 @@ def inPath(arg: str) -> tuple[bool, str]:
         except FileNotFoundError:
             pass
     return False, None
+
+
+def printToFile(file, content):
+    if file == "stdout":
+        print(content)
+    else:
+        with open(file, "w") as f:
+            f.write(content + "\n")
