@@ -1,51 +1,52 @@
-from app.main import echo, parseInput
+import shlex
+from app.main import echo
 
 
 def test_no_quotes_basic():
-    input = parseInput("echo good job")
+    input = shlex.split("echo good job")
     assert "good job" == echo(input)
 
 
 def test_no_quotes_spaces():
-    input = parseInput("echo waste   of   space")
+    input = shlex.split("echo waste   of   space")
     assert "waste of space" == echo(input)
 
 
-def test_odd_quotes():
-    input = parseInput("echo 'tis o'couse f'ed")
-    assert "'tis o'couse f'ed" == echo(input)
-
-
-def test_odd_quotes_spaces():
-    input = parseInput("echo i'm    way 2    long")
-    assert "i'm way 2 long" == echo(input)
-
-
 def test_quotes():
-    input = parseInput("echo 'this is' 'great'")
+    input = shlex.split("echo 'this is' 'great'")
     assert "this is great" == echo(input)
 
 
 def test_empty_quotes():
-    input = parseInput("echo ''")
+    input = shlex.split("echo ''")
     assert "" == echo(input)
 
 
 def test_continuous_quotes():
-    input = parseInput("echo 'test     world' 'shell''hello'")
+    input = shlex.split("echo 'test     world' 'shell''hello'")
     assert "test     world shellhello" == echo(input)
 
 
 def test_double_quotes():
-    input = parseInput('echo "quz  hello"  "bar"')
+    input = shlex.split('echo "quz  hello"  "bar"')
     assert "quz  hello bar" == echo(input)
 
 
 def test_mixed_quotes_two():
-    input = parseInput("echo \"not 'great' is it?\"")
+    input = shlex.split("echo \"not 'great' is it?\"")
     assert "not 'great' is it?" == echo(input)
 
 
 def test_unquoted_intermediates():
-    input = parseInput("echo 'aa' bb 'cc'")
+    input = shlex.split("echo 'aa' bb 'cc'")
     assert "aa bb cc" == echo(input)
+
+
+def test_quoted_backslash():
+    input = shlex.split('echo "before\   after"')
+    assert "before\   after" == echo(input)
+
+
+def test_unquoted_backslashed():
+    input = shlex.split("echo world\ \ \ \ \ \ script")
+    assert "world      script" == echo(input)

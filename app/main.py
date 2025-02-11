@@ -1,8 +1,8 @@
 import sys
 import os
 import subprocess
+import shlex
 
-from app.utils import parseQuotes
 from app.utils import inPath
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
@@ -17,7 +17,13 @@ def main():
         except EOFError:
             print("")
             break
-        inputList = parseInput(inString)
+        try:
+            inputList = shlex.split(inString)
+        except ValueError as e:
+            print("Error: ", e)
+            continue
+        if len(inputList) == 0:
+            continue
         command = inputList[0]
         match command:
             case "exit":
@@ -74,29 +80,6 @@ def echo(inputList: list[str]) -> str:
             else:
                 out += s + " "
     return out
-
-
-def parseInput(inString: str) -> list[str]:
-    """Returns the command and parameters in the given prompt string
-    as a list of strings"""
-    totalQoutes = inString.count("'")
-    totalDquotes = inString.count('"')
-    if totalQoutes == 0 and totalDquotes == 0:
-        return inString.split()  # There are no quotes so just split on whitspace
-
-    if totalQoutes > 0 and totalDquotes == 0:
-        return parseQuotes(inString, "'")  # There are only single quotes
-    elif totalQoutes == 0 and totalDquotes > 0:
-        return parseQuotes(inString, '"')  # There are only double quotes
-    else:  # We have mixed single and double quotes
-        if totalQoutes % 2 == 1:  # There's an odd number of single quotes
-            # Treat them as normal characters and only consider the double quotes
-            return parseQuotes(inString, '"')
-        elif totalDquotes % 2 == 1:  # There's an odd number of double quotes
-            # Treat them as normal characters and only consider the single quotes
-            return parseQuotes(inString, "'")
-        else:  # There is an even number of both quotes
-            return parseQuotes(inString, "mixed")
 
 
 if __name__ == "__main__":
