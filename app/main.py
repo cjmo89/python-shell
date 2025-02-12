@@ -56,9 +56,11 @@ def main():
             case _:
                 isInPath, path = inPath(command)
                 if isInPath:
-                    subOutput = subprocess.run(inputList)
-                    if subOutput.stdout:
-                        printToFile(file, subOutput.stdout)
+                    if file != "stdout":
+                        with open(file, "w") as f:
+                            subprocess.run(inputList, stdout=f)
+                    else:
+                        print(subprocess.run(inputList).stdout)
                 else:
                     printToFile(file, f"{command}: command not found")
 
@@ -100,9 +102,8 @@ def rearrange(inputList: list[str]) -> str:
         return None
     i = inputList.index(">")
     file = inputList[i + 1]
-    if inputList[0] in builtins:
-        inputList.remove(">")
-        inputList.remove(file)
+    inputList.remove(">")
+    inputList.remove(file)
     return file
 
 
