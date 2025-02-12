@@ -40,7 +40,7 @@ def main():
             case "type":
                 type(inputList[1:], file)
             case "pwd":
-                printToFile(os.getcwd())
+                printToFile(file, os.getcwd())
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
