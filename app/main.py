@@ -46,7 +46,7 @@ def main():
                 if stdout:
                     printToFile(stdout, os.getcwd())
                 else:
-                    printToFile(outContent=os.getcwd())
+                    printToFile(outContent=os.getcwd() + "\n")
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
@@ -94,6 +94,7 @@ def type(inputList, out="stdout"):
         s += f"{arg}: not found"
     if not out:
         out = "stdout"
+    s += "\n"
     printToFile(out, s)
     return s  # For testing
 

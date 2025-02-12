@@ -12,4 +12,4 @@ def test_ls_redirect():
 def test_stderr_redirection():
     input = shlex.split("echo 'Maria file cannot be found' 2> /tmp/quz/foo.md")
     rearrange(input)
-    assert echo(input) == "Maria file cannot be found"
+    assert echo(input) == "Maria file cannot be found\n"
