@@ -19,7 +19,7 @@ def inPath(arg: str) -> tuple[bool, str]:
 
 def printToFile(stdout="stdout", outContent="", stderr="stderr", errContent=""):
     if stdout == "stdout":
-        print(outContent)
+        sys.stdout.write(outContent)
     else:
         with open(stdout, "w") as f:
             f.write(outContent)
