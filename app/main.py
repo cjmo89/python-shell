@@ -76,9 +76,14 @@ def main():
                         if subOutput.stdout:
                             print(subOutput.stdout)
                 else:
-                    printToFile(
-                        stderr=stderr, errContent=f"{command}: command not found"
-                    )
+                    if stderr:
+                        printToFile(
+                            stderr=stderr, errContent=f"{command}: command not found"
+                        )
+                    else:
+                        printToFile(
+                            stderr="stderr", errContent=f"{command}: command not found"
+                        )
 
 
 def type(inputList, out="stdout"):
