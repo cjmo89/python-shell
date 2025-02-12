@@ -25,7 +25,7 @@ def main():
         if len(inputList) == 0:
             continue
         file = "stdout"
-        if ">" in inputList:
+        if ">" in inputList or "1>" in inputList:
             file = rearrange(inputList)
             if not file:
                 continue
@@ -96,15 +96,20 @@ def echo(inputList: list[str], out: str = "stdout") -> None:
 def rearrange(inputList: list[str]) -> str:
     """rearranges the input list to have all the args after the command
     and returns the given file name"""
-    if inputList[-1] == ">":
+    if inputList[-1] == ">" or inputList[-1] == "1>":
         print("Parse error")
         return None
-    if inputList.count(">") > 1:
+    if inputList.count(">") > 1 or inputList.count("1>") > 1:
         print("Only single file output redirection is supported")
         return None
-    i = inputList.index(">")
-    file = inputList[i + 1]
-    inputList.remove(">")
+    if ">" in inputList:
+        i = inputList.index(">")
+        file = inputList[i + 1]
+        inputList.remove(">")
+    else:
+        i = inputList.index("1>")
+        file = inputList[i + 1]
+        inputList.remove("1>")
     inputList.remove(file)
     return file
 
