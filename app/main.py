@@ -39,9 +39,9 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList, stdout, stderr)  # echo doesn't output to stderr
+                echo(inputList, stdout, stderr)
             case "type":
-                type(inputList[1:], stdout)  # type also doesn't output to stderr
+                type(inputList[1:], stdout)
             case "pwd":
                 if stdout:
                     printToFile(stdout, os.getcwd())
@@ -92,6 +92,8 @@ def type(inputList, out="stdout"):
             s += f"{arg} is {path}/" + arg
             continue
         s += f"{arg}: not found"
+    if not out:
+        out = "stdout"
     printToFile(out, s)
     return s  # For testing
 
@@ -105,7 +107,12 @@ def echo(inputList: list[str], out: str = "stdout", err: str = "stderr") -> None
                 sOut += s
             else:
                 sOut += s + " "
-    printToFile(out, sOut, err)
+    if not out:
+        out = "stdout"  # echo doesn't output to stderr
+    if out and err:
+        printToFile(out, sOut, err)
+    else:
+        printToFile(out, sOut)
     return sOut  # For testing
 
 
