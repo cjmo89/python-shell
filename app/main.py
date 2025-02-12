@@ -78,7 +78,7 @@ def type(inputList, out="stdout"):
             s += f"{arg} is {path}/" + arg
             continue
         s += f"{arg}: not found"
-    printToFile(s)
+    printToFile(out, s)
 
 
 def echo(inputList: list[str], out: str = "stdout") -> None:
