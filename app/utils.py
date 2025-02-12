@@ -18,9 +18,6 @@ def inPath(arg: str) -> tuple[bool, str]:
 
 
 def printToFile(stdout="stdout", outContent="", stderr="stderr", errContent=""):
-    print(f"DEBUG: Writing to stdout file: {stdout}, Content: '{outContent}'")
-    print(f"DEBUG: Writing to stderr file: {stderr}, Content: '{errContent}'")
-
     if stdout == "stdout":
         print(outContent)
     else:
