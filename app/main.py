@@ -107,6 +107,7 @@ def echo(inputList: list[str], out: str = "stdout", err: str = "stderr") -> None
                 sOut += s
             else:
                 sOut += s + " "
+    sOut += "\n"
     if not out:
         out = "stdout"  # echo doesn't output to stderr
     if out and err:
