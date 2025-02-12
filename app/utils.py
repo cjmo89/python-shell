@@ -23,7 +23,7 @@ def printToFile(stdout="stdout", outContent="", stderr="stderr", errContent=""):
     else:
         with open(stdout, "w") as f:
             f.write(outContent)
-    if stderr == "stderr":
+    if stderr == "stderr" and errContent:
         print(errContent, file=sys.stderr)
     else:
         with open(stderr, "w") as f:
