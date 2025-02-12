@@ -4,49 +4,49 @@ from app.main import echo
 
 def test_no_quotes_basic():
     input = shlex.split("echo good job")
-    assert "good job" == echo(input)
+    assert echo(input) == "good job"
 
 
 def test_no_quotes_spaces():
     input = shlex.split("echo waste   of   space")
-    assert "waste of space" == echo(input)
+    assert echo(input) == "waste of space"
 
 
 def test_quotes():
     input = shlex.split("echo 'this is' 'great'")
-    assert "this is great" == echo(input)
+    assert echo(input) == "this is great"
 
 
 def test_empty_quotes():
     input = shlex.split("echo ''")
-    assert "" == echo(input)
+    assert echo(input) == ""
 
 
 def test_continuous_quotes():
     input = shlex.split("echo 'test     world' 'shell''hello'")
-    assert "test     world shellhello" == echo(input)
+    assert echo(input) == "test     world shellhello"
 
 
 def test_double_quotes():
     input = shlex.split('echo "quz  hello"  "bar"')
-    assert "quz  hello bar" == echo(input)
+    assert echo(input) == "quz  hello bar"
 
 
 def test_mixed_quotes_two():
     input = shlex.split("echo \"not 'great' is it?\"")
-    assert "not 'great' is it?" == echo(input)
+    assert echo(input) == "not 'great' is it?"
 
 
 def test_unquoted_intermediates():
     input = shlex.split("echo 'aa' bb 'cc'")
-    assert "aa bb cc" == echo(input)
+    assert echo(input) == "aa bb cc"
 
 
 def test_quoted_backslash():
     input = shlex.split('echo "before\   after"')
-    assert "before\   after" == echo(input)
+    assert echo(input) == "before\   after"
 
 
 def test_unquoted_backslashed():
     input = shlex.split("echo world\ \ \ \ \ \ script")
-    assert "world      script" == echo(input)
+    assert echo(input) == "world      script"

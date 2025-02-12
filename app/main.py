@@ -24,10 +24,13 @@ def main():
             continue
         if len(inputList) == 0:
             continue
-        file = "stdout"
-        if ">" in inputList or "1>" in inputList:
-            file = rearrange(inputList)
-            if not file:
+        stdout, stderr = "", ""
+        if ">" in inputList or "1>" in inputList or "2>" in inputList:
+            stdout, stderr = rearrange(inputList)
+            if ((">" in inputList or "1>" in inputList) and not stdout) or (
+                "2>" in inputList and not stderr
+            ):
+                print("Parse error")
                 continue
         command = inputList[0]
         match command:
@@ -36,11 +39,14 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList, file)
+                echo(inputList)  # echo doesn't output to stderr
             case "type":
-                type(inputList[1:], file)
+                type(inputList[1:])  # type also doesn't output to stderr
             case "pwd":
-                printToFile(file, os.getcwd())
+                if stdout:
+                    printToFile(stdout, os.getcwd())
+                else:
+                    printToFile(outContent=os.getcwd())
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
@@ -56,15 +62,23 @@ def main():
             case _:
                 isInPath, path = inPath(command)
                 if isInPath:
-                    if file != "stdout":
-                        with open(file, "w") as f:
+                    if stdout and stderr:
+                        with open(stdout, "w") as fOut, open(stderr, "w") as fErr:
+                            subprocess.run(inputList, stdout=fOut, stderr=fErr)
+                    elif stdout:
+                        with open(stdout, "w") as f:
                             subprocess.run(inputList, stdout=f)
+                    elif stderr:
+                        with open(stderr, "w") as f:
+                            subprocess.run(inputList, stderr=f)
                     else:
                         subOutput = subprocess.run(inputList)
                         if subOutput.stdout:
                             print(subOutput.stdout)
                 else:
-                    printToFile(file, f"{command}: command not found")
+                    printToFile(
+                        stderr=stderr, errContent=f"{command}: command not found"
+                    )
 
 
 def type(inputList, out="stdout"):
@@ -79,6 +93,7 @@ def type(inputList, out="stdout"):
             continue
         s += f"{arg}: not found"
     printToFile(out, s)
+    return s  # For testing
 
 
 def echo(inputList: list[str], out: str = "stdout") -> None:
@@ -91,27 +106,36 @@ def echo(inputList: list[str], out: str = "stdout") -> None:
             else:
                 sOut += s + " "
     printToFile(out, sOut)
+    return sOut  # For testing
 
 
-def rearrange(inputList: list[str]) -> str:
-    """rearranges the input list to have all the args after the command
-    and returns the given file name"""
+def rearrange(inputList: list[str]) -> tuple[str, str]:
+    """Extracts the files for std output and std error redirection
+    and returns them"""
     if inputList[-1] == ">" or inputList[-1] == "1>":
         print("Parse error")
-        return None
+        return "", ""
     if inputList.count(">") > 1 or inputList.count("1>") > 1:
         print("Only single file output redirection is supported")
-        return None
+        return "", ""
+    stdout = ""
+    stderr = ""
     if ">" in inputList:
         i = inputList.index(">")
-        file = inputList[i + 1]
+        stdout = inputList[i + 1]
         inputList.remove(">")
-    else:
+        inputList.remove(stdout)
+    elif "1>" in inputList:
         i = inputList.index("1>")
-        file = inputList[i + 1]
+        stdout = inputList[i + 1]
         inputList.remove("1>")
-    inputList.remove(file)
-    return file
+        inputList.remove(stdout)
+    if "2>" in inputList:
+        i = inputList.index("2>")
+        stderr = inputList[i + 1]
+        inputList.remove("2>")
+        inputList.remove(stderr)
+    return stdout, stderr
 
 
 if __name__ == "__main__":
