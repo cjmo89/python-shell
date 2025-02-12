@@ -60,7 +60,9 @@ def main():
                         with open(file, "w") as f:
                             subprocess.run(inputList, stdout=f)
                     else:
-                        print(subprocess.run(inputList).stdout)
+                        subOutput = subprocess.run(inputList)
+                        if subOutput.stdout:
+                            print(subOutput.stdout)
                 else:
                     printToFile(file, f"{command}: command not found")
 
