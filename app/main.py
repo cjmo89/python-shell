@@ -39,9 +39,9 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList)  # echo doesn't output to stderr
+                echo(inputList, stdout, stderr)  # echo doesn't output to stderr
             case "type":
-                type(inputList[1:])  # type also doesn't output to stderr
+                type(inputList[1:], stdout)  # type also doesn't output to stderr
             case "pwd":
                 if stdout:
                     printToFile(stdout, os.getcwd())
@@ -96,7 +96,7 @@ def type(inputList, out="stdout"):
     return s  # For testing
 
 
-def echo(inputList: list[str], out: str = "stdout") -> None:
+def echo(inputList: list[str], out: str = "stdout", err: str = "stderr") -> None:
     sOut = ""
     if len(inputList) > 1:
         for i, s in enumerate(inputList[1:]):
@@ -105,7 +105,7 @@ def echo(inputList: list[str], out: str = "stdout") -> None:
                 sOut += s
             else:
                 sOut += s + " "
-    printToFile(out, sOut)
+    printToFile(out, sOut, err)
     return sOut  # For testing
 
 
