@@ -7,6 +7,7 @@ import readline
 from app.utils import inPath, printToFile
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
+customs = []
 
 
 def main():
@@ -210,21 +211,20 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
 
 
 def completer(text, state):
+    completions = builtins + customs
+    # Filter commands based on the current text input
+    matches = [cmd for cmd in completions if cmd.startswith(text)]
+    if state < len(matches):
+        return matches[state] + " "
+    return None
+
+
+if __name__ == "__main__":
     pathVar = os.getenv("PATH")
     paths = pathVar.split(":")
-    customs = []
     for path in paths:
         try:
             customs += os.listdir(path)
         except FileNotFoundError:
             pass
-    completions = builtins + customs
-    # Filter commands based on the current text input
-    matches = [cmd for cmd in completions if cmd.startswith(text)]
-    if state < len(matches):
-        return matches[state]
-    return None
-
-
-if __name__ == "__main__":
     main()
