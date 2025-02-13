@@ -24,14 +24,11 @@ def main():
             continue
         if len(inputList) == 0:
             continue
-        stdout, stderr = "", ""
-        if ">" in inputList or "1>" in inputList or "2>" in inputList:
-            stdout, stderr = rearrange(inputList)
-            if ((">" in inputList or "1>" in inputList) and not stdout) or (
-                "2>" in inputList and not stderr
-            ):
-                print("Parse error")
-                continue
+        try:
+            stdout, stderr, stdoutAppend, stderrAppend = parseRedirects(inputList)
+        except ValueError as e:
+            print(e)
+            continue
         command = inputList[0]
         match command:
             case "exit":
@@ -39,14 +36,11 @@ def main():
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList, stdout, stderr)
+                echo(inputList[1:], stdout, stderr, stdoutAppend, stderrAppend)
             case "type":
-                type(inputList[1:], stdout)
+                typeCommand(inputList[1:], stdout, stderr, stdoutAppend, stderrAppend)
             case "pwd":
-                if stdout:
-                    printToFile(stdout, os.getcwd())
-                else:
-                    printToFile(outContent=os.getcwd() + "\n")
+                pwd(stdout, stderr, stdoutAppend, stderrAppend)
             case "cd":
                 home = os.path.expanduser("~")
                 if len(inputList) > 1:
@@ -86,7 +80,9 @@ def main():
                         )
 
 
-def type(inputList, out="stdout"):
+def typeCommand(
+    inputList, out="stdout", err="stderr", outAppend=False, errAppend=False
+):
     s = ""
     for arg in inputList:
         if arg in builtins:
@@ -100,46 +96,71 @@ def type(inputList, out="stdout"):
     if not out:
         out = "stdout"
     s += "\n"
-    printToFile(out, s)
+    if not out:
+        out = "stdout"
+    if out and err:
+        printToFile(out, s, err, "", outAppend, errAppend)
+    else:
+        printToFile(out, s, outAppend=outAppend)
     return s  # For testing
 
 
-def echo(inputList: list[str], out: str = "stdout", err: str = "stderr") -> None:
+def echo(
+    inputList: list[str],
+    out: str = "stdout",
+    err: str = "stderr",
+    outAppend: bool = False,
+    errAppend: bool = False,
+) -> None:
     sOut = ""
-    if len(inputList) > 1:
-        for i, s in enumerate(inputList[1:]):
-            # -2 because we start from the second item
-            if i == len(inputList) - 2:
-                sOut += s
-            else:
-                sOut += s + " "
+    for i, s in enumerate(inputList):
+        if i == len(inputList) - 1:
+            sOut += s
+        else:
+            sOut += s + " "
     sOut += "\n"
     if not out:
         out = "stdout"  # echo doesn't output to stderr
     if out and err:
-        printToFile(out, sOut, err)
+        printToFile(out, sOut, err, "", outAppend, errAppend)
     else:
-        printToFile(out, sOut)
+        printToFile(out, sOut, outAppend=outAppend)
     return sOut  # For testing
 
 
-def rearrange(inputList: list[str]) -> tuple[str, str]:
-    """Extracts the files for std output and std error redirection
-    and returns them"""
+def pwd(stdout, stderr, outAppend, errAppend):
+    if not stdout:
+        stdout = "stdout"
+    if stdout and stderr:
+        printToFile(stdout, os.getcwd(), stderr, "", outAppend, errAppend)
+    else:
+        printToFile(outContent=os.getcwd() + "\n", outAppend=outAppend)
+
+
+def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
     if inputList[-1] == ">" or inputList[-1] == "1>":
-        print("Parse error")
-        return "", ""
-    if inputList.count(">") > 1 or inputList.count("1>") > 1:
-        print("Only single file output redirection is supported")
-        return "", ""
+        raise ValueError("Parse error, no file specified")
+    if (
+        inputList.count(">") > 1
+        or inputList.count("1>") > 1
+        or inputList.count("2>") > 1
+        or inputList.count(">>") > 1
+        or inputList.count("1>>") > 1
+        or inputList.count("2>>") > 1
+    ):
+        raise ValueError("Only single file output redirection is supported")
     stdout = ""
     stderr = ""
+    stdoutAppend = False
+    stderrAppend = False
     if ">" in inputList:
         i = inputList.index(">")
         stdout = inputList[i + 1]
         inputList.remove(">")
         inputList.remove(stdout)
     elif "1>" in inputList:
+        if stdout:
+            raise ValueError("Only single file output redirection is supported")
         i = inputList.index("1>")
         stdout = inputList[i + 1]
         inputList.remove("1>")
@@ -149,7 +170,23 @@ def rearrange(inputList: list[str]) -> tuple[str, str]:
         stderr = inputList[i + 1]
         inputList.remove("2>")
         inputList.remove(stderr)
-    return stdout, stderr
+    if "1>>" in inputList:
+        if stdout:
+            raise ValueError("Only single file output redirection is supported")
+        i = inputList.index("1>>")
+        stdout = inputList[i + 1]
+        inputList.remove("1>>")
+        inputList.remove(stdout)
+        stdoutAppend = True
+    if "2>>" in inputList:
+        if stderr:
+            raise ValueError("Only single file output redirection is supported")
+        i = inputList.index("2>>")
+        stderr = inputList[i + 1]
+        inputList.remove("2>>")
+        inputList.remove(stderr)
+        stderrAppend = True
+    return stdout, stderr, stdoutAppend, stderrAppend
 
 
 if __name__ == "__main__":

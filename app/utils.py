@@ -17,14 +17,29 @@ def inPath(arg: str) -> tuple[bool, str]:
     return False, ""
 
 
-def printToFile(stdout="stdout", outContent="", stderr="stderr", errContent=""):
+def printToFile(
+    stdout="stdout",
+    outContent="",
+    stderr="stderr",
+    errContent="",
+    outAppend=False,
+    errAppend=False,
+):
     if stdout == "stdout":
         sys.stdout.write(outContent)
     else:
-        with open(stdout, "w") as f:
-            f.write(outContent)
+        if outAppend:
+            with open(stdout, "a") as f:
+                f.write(outContent)
+        else:
+            with open(stdout, "w") as f:
+                f.write(outContent)
     if stderr == "stderr" and errContent:
         print(errContent, file=sys.stderr)
     else:
-        with open(stderr, "w") as f:
-            f.write(errContent)
+        if errAppend:
+            with open(stderr, "a") as f:
+                f.write(errContent)
+        else:
+            with open(stderr, "w") as f:
+                f.write(errContent)
