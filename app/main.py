@@ -213,7 +213,7 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
 def completer(text, state):
     completions = builtins + customs
     # Filter commands based on the current text input
-    matches = [cmd for cmd in completions if cmd.startswith(text)]
+    matches = [cmd + " " for cmd in completions if cmd.startswith(text)]
     if state < len(matches):
         return matches[state]
     return None
