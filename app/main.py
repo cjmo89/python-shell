@@ -56,14 +56,19 @@ def main():
             case _:
                 isInPath, path = inPath(command)
                 if isInPath:
+                    outMode = "a" if stdoutAppend else "w"
+                    errMode = "a" if stderrAppend else "w"
                     if stdout and stderr:
-                        with open(stdout, "w") as fOut, open(stderr, "w") as fErr:
+                        with (
+                            open(stdout, outMode) as fOut,
+                            open(stderr, errMode) as fErr,
+                        ):
                             subprocess.run(inputList, stdout=fOut, stderr=fErr)
                     elif stdout:
-                        with open(stdout, "w") as f:
+                        with open(stdout, outMode) as f:
                             subprocess.run(inputList, stdout=f)
                     elif stderr:
-                        with open(stderr, "w") as f:
+                        with open(stderr, errMode) as f:
                             subprocess.run(inputList, stderr=f)
                     else:
                         subOutput = subprocess.run(inputList)
@@ -72,11 +77,15 @@ def main():
                 else:
                     if stderr:
                         printToFile(
-                            stderr=stderr, errContent=f"{command}: command not found"
+                            stderr=stderr,
+                            errContent=f"{command}: command not found",
+                            errAppend=stderrAppend,
                         )
                     else:
                         printToFile(
-                            stderr="stderr", errContent=f"{command}: command not found"
+                            stderr="stderr",
+                            errContent=f"{command}: command not found",
+                            errAppend=stderrAppend,
                         )
 
 
@@ -170,6 +179,14 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
         stderr = inputList[i + 1]
         inputList.remove("2>")
         inputList.remove(stderr)
+    if ">>" in inputList:
+        if stdout:
+            raise ValueError("Only single file output redirection is supported")
+        i = inputList.index(">>")
+        stdout = inputList[i + 1]
+        inputList.remove(">>")
+        inputList.remove(stdout)
+        stdoutAppend = True
     if "1>>" in inputList:
         if stdout:
             raise ValueError("Only single file output redirection is supported")
