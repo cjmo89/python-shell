@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 import shlex
+import readline
 
 from app.utils import inPath, printToFile
 
@@ -9,6 +10,8 @@ builtins = ["echo", "exit", "type", "pwd", "cd"]
 
 
 def main():
+    readline.set_completer(completer)
+    readline.parse_and_bind("tab: complete")
     while True:
         sys.stdout.write("$ ")
         # Wait for user input
@@ -204,6 +207,14 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
         inputList.remove(stderr)
         stderrAppend = True
     return stdout, stderr, stdoutAppend, stderrAppend
+
+
+def completer(text, state):
+    # Filter commands based on the current text input
+    matches = [cmd + " " for cmd in builtins if cmd.startswith(text)]
+    if state < len(matches):
+        return matches[state]
+    return None
 
 
 if __name__ == "__main__":
