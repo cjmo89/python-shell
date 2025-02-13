@@ -14,10 +14,10 @@ def main():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     while True:
-        sys.stdout.write("$ ")
+        # sys.stdout.write("$ ")
         # Wait for user input
         try:
-            inString = input()
+            inString = input("$ ")
         except EOFError:
             print("")
             break
