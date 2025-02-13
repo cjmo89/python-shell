@@ -14,10 +14,10 @@ def main():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     while True:
-        # sys.stdout.write("$ ")
+        sys.stdout.write("$ ")
         # Wait for user input
         try:
-            inString = input("$ ")
+            inString = input()
         except EOFError:
             print("")
             break
@@ -215,7 +215,7 @@ def completer(text, state):
     # Filter commands based on the current text input
     matches = [cmd for cmd in completions if cmd.startswith(text)]
     if state < len(matches):
-        return matches[state] + " "
+        return matches[state]
     return None
 
 
