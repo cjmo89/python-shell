@@ -36,7 +36,7 @@ def printToFile(
                 f.write(outContent)
     if stderr == "stderr" and errContent:
         print(errContent, file=sys.stderr)
-    elif errContent:
+    elif stderr != "stderr":
         if errAppend:
             with open(stderr, "a") as f:
                 f.write(errContent)
