@@ -210,8 +210,11 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
 
 
 def completer(text, state):
+    pathVar = os.getenv("PATH")
+    paths = pathVar.split(":")
+    completions = builtins + paths
     # Filter commands based on the current text input
-    matches = [cmd + " " for cmd in builtins if cmd.startswith(text)]
+    matches = [cmd + " " for cmd in completions if cmd.startswith(text)]
     if state < len(matches):
         return matches[state]
     return None
