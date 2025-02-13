@@ -215,7 +215,7 @@ def completer(text, state):
     customs = []
     for path in paths:
         try:
-            customs.append(os.listdir(path))
+            customs += os.listdir(path)
         except FileNotFoundError:
             pass
     completions = builtins + customs
