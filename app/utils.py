@@ -17,15 +17,17 @@ def inPath(arg: str) -> tuple[bool, str]:
     return False, ""
 
 
-def printToFile(
+def printFunction(
     stdout="stdout",
     outContent="",
     stderr="stderr",
     errContent="",
     outAppend=False,
     errAppend=False,
+    piped=False
 ):
     if stdout == "stdout":
+        if piped:
         sys.stdout.write(outContent)
     else:
         if outAppend:

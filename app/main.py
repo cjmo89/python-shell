@@ -1,10 +1,10 @@
-import sys
 import os
-import subprocess
-import shlex
 import readline
+import shlex
+import subprocess
+import sys
 
-from app.utils import inPath, printToFile
+from app.utils import inPath, printFunction
 
 builtins = ["echo", "exit", "type", "pwd", "cd"]
 customs = []
@@ -28,19 +28,21 @@ def main():
             continue
         if len(inputList) == 0:
             continue
+        command = inputList[0]
         try:
-            stdout, stderr, stdoutAppend, stderrAppend = parseRedirects(inputList)
+            stdout, stderr, stdoutAppend, stderrAppend, piped = parseRedirects(
+                inputList
+            )
         except ValueError as e:
             print(e)
             continue
-        command = inputList[0]
         match command:
             case "exit":
                 if len(inputList) > 1:
                     sys.exit(int(inputList[1]))  # exit returning the first arg
                 sys.exit()
             case "echo":
-                echo(inputList[1:], stdout, stderr, stdoutAppend, stderrAppend)
+                echo(inputList[1:], piped, stdout, stderr, stdoutAppend, stderrAppend)
             case "type":
                 typeCommand(inputList[1:], stdout, stderr, stdoutAppend, stderrAppend)
             case "pwd":
@@ -80,13 +82,13 @@ def main():
                             print(subOutput.stdout)
                 else:
                     if stderr:
-                        printToFile(
+                        printFunction(
                             stderr=stderr,
                             errContent=f"{command}: command not found",
                             errAppend=stderrAppend,
                         )
                     else:
-                        printToFile(
+                        printFunction(
                             stderr="stderr",
                             errContent=f"{command}: command not found",
                             errAppend=stderrAppend,
@@ -112,14 +114,15 @@ def typeCommand(
     if not out:
         out = "stdout"
     if out and err:
-        printToFile(out, s, err, "", outAppend, errAppend)
+        printFunction(out, s, err, "", outAppend, errAppend)
     else:
-        printToFile(out, s, outAppend=outAppend)
+        printFunction(out, s, outAppend=outAppend)
     return s  # For testing
 
 
 def echo(
     inputList: list[str],
+    piped: bool,
     out: str = "stdout",
     err: str = "stderr",
     outAppend: bool = False,
@@ -135,22 +138,21 @@ def echo(
     if not out:
         out = "stdout"  # echo doesn't output to stderr
     if out and err:
-        printToFile(out, sOut, err, "", outAppend, errAppend)
+        printFunction(out, sOut, err, "", outAppend, errAppend, piped)
     else:
-        printToFile(out, sOut, outAppend=outAppend)
-    return sOut  # For testing
+        printFunction(out, sOut, outAppend=outAppend, piped=piped)
 
 
 def pwd(stdout, stderr, outAppend, errAppend):
     if not stdout:
         stdout = "stdout"
     if stdout and stderr:
-        printToFile(stdout, os.getcwd(), stderr, "", outAppend, errAppend)
+        printFunction(stdout, os.getcwd(), stderr, "", outAppend, errAppend)
     else:
-        printToFile(outContent=os.getcwd() + "\n", outAppend=outAppend)
+        printFunction(outContent=os.getcwd() + "\n", outAppend=outAppend)
 
 
-def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
+def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool, bool]:
     if inputList[-1] == ">" or inputList[-1] == "1>":
         raise ValueError("Parse error, no file specified")
     if (
@@ -207,7 +209,8 @@ def parseRedirects(inputList: list[str]) -> tuple[str, str, bool, bool]:
         inputList.remove("2>>")
         inputList.remove(stderr)
         stderrAppend = True
-    return stdout, stderr, stdoutAppend, stderrAppend
+    piped = "|" in inputList
+    return stdout, stderr, stdoutAppend, stderrAppend, piped
 
 
 def completer(text, state):
